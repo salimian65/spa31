@@ -39,11 +39,12 @@ namespace IdentityProvider
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
+            
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-            
+                .AddDefaultTokenProviders()
+                .AddClaimsPrincipalFactory<ClaimsFactory>();
+
             var builder = services.AddIdentityServer(options =>
                 {
                     options.Events.RaiseErrorEvents = true;
@@ -54,6 +55,7 @@ namespace IdentityProvider
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApis())
                 .AddInMemoryClients(Config.GetClients())
+              //.AddS
                 .AddAspNetIdentity<ApplicationUser>();
 
             if (Environment.IsDevelopment())
@@ -65,6 +67,8 @@ namespace IdentityProvider
                 throw new Exception("need to configure key material");
             }
 
+          //  services.AddClaimsPrincipalFactory<ClaimsFactory>();
+
             services.AddAuthentication()
                 .AddGoogle(options =>
                 {
@@ -75,17 +79,17 @@ namespace IdentityProvider
                     options.ClientSecret = "copy client secret from Google here";
                 });
 
-            services.ConfigureExternalCookie(options =>
-            {
-                options.Cookie.IsEssential = true;
-                options.Cookie.SameSite = (SameSiteMode)(-1); //SameSiteMode.Unspecified in .NET Core 3.1
-            });
+            //services.ConfigureExternalCookie(options =>
+            //{
+            //    options.Cookie.IsEssential = true;
+            //    options.Cookie.SameSite = (SameSiteMode)(-1); //SameSiteMode.Unspecified in .NET Core 3.1
+            //});
 
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.Cookie.IsEssential = true;
-                options.Cookie.SameSite = (SameSiteMode)(-1); //SameSiteMode.Unspecified in .NET Core 3.1
-            });
+            //services.ConfigureApplicationCookie(options =>
+            //{
+            //    options.Cookie.IsEssential = true;
+            //    options.Cookie.SameSite = (SameSiteMode)(-1); //SameSiteMode.Unspecified in .NET Core 3.1
+            //});
         }
 
         public void Configure(IApplicationBuilder app)

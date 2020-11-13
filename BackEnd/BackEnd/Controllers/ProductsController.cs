@@ -50,28 +50,40 @@ namespace BackEnd.Controllers
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> PutProduct(int id, Product product) {
-            if (id != product.Id) {
+        public async Task<IActionResult> PutProduct(int id, Product product)
+        {
+            if (id != product.Id)
+            {
                 return BadRequest();
             }
             Product original = await _context.Product.AsNoTracking<Product>().FirstOrDefaultAsync(p => p.Id == id);
             AuthorizationResult authresult = await _authorizationService.AuthorizeAsync(User, original, "ProductOwner");
-            if (!authresult.Succeeded) {
-                if (User.Identity.IsAuthenticated) {
+            if (!authresult.Succeeded)
+            {
+                if (User.Identity.IsAuthenticated)
+                {
                     return new ForbidResult();
-                } else {
+                }
+                else
+                {
                     return new ChallengeResult();
                 }
             }
 
             _context.Entry(product).State = EntityState.Modified;
 
-            try {
+            try
+            {
                 await _context.SaveChangesAsync();
-            } catch (DbUpdateConcurrencyException) {
-                if (!ProductExists(id)) {
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ProductExists(id))
+                {
                     return NotFound();
-                } else {
+                }
+                else
+                {
                     throw;
                 }
             }
@@ -82,7 +94,10 @@ namespace BackEnd.Controllers
         // POST: api/Products
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
-        [Authorize]
+        // [Authorize(Roles = "customer")]
+        // [Authorize(Policy = "Customer")]
+        [Authorize(Policy = "ProductOwner")]
+        // [Authorize]
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
@@ -96,14 +111,17 @@ namespace BackEnd.Controllers
         // DELETE: api/Products/5
         [HttpDelete("{id}")]
         [Authorize]
-        public async Task<ActionResult<Product>> DeleteProduct(int id) {
+        public async Task<ActionResult<Product>> DeleteProduct(int id)
+        {
             var product = await _context.Product.FindAsync(id);
             AuthorizationResult authresult = await _authorizationService.AuthorizeAsync(User, product, "ProductOwner");
-            if (!authresult.Succeeded) {
+            if (!authresult.Succeeded)
+            {
                 return new ForbidResult();
             }
 
-            if (product == null) {
+            if (product == null)
+            {
                 return NotFound();
             }
 

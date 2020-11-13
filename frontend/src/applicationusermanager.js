@@ -1,25 +1,28 @@
-import { UserManager } from 'oidc-client'
+import { UserManager } from "oidc-client";
 
 class ApplicationUserManager extends UserManager {
-  constructor () {
+  constructor() {
     super({
-      authority: 'http://localhost:5000',
-      client_id: 'frontend',
-      redirect_uri: 'http://localhost:8080/callback',
-      response_type: 'code',
-      scope: 'openid profile backend',
-      post_logout_redirect_uri: 'http://localhost:8080'
-    })
+      authority: "http://localhost:5000",
+      client_id: "frontend",
+      redirect_uri: "http://localhost:8080/callback",
+      response_type: "code",
+      scope: "openid profile backend",
+      post_logout_redirect_uri: "http://localhost:8080",
+      automaticSilentRenew: true,
+      silent_redirect_uri: "https://localhost:5000/static/silent-renew.html",
+      accessTokenExpiringNotificationTime: 10
+    });
   }
 
-  async login () {
-    await this.signinRedirect()
+  async login() {
+    await this.signinRedirect();
   }
 
-  async logout () {
-    return this.signoutRedirect()
+  async logout() {
+    return this.signoutRedirect();
   }
 }
 
-const applicationUserManager = new ApplicationUserManager()
-export { applicationUserManager as default }
+const applicationUserManager = new ApplicationUserManager();
+export { applicationUserManager as default };

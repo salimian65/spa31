@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using BackEnd.Models;
 using IdentityServer4.AccessTokenValidation;
 using BackEnd.Authorization;
+using IdentityModel;
 using Microsoft.AspNetCore.Authorization;
 
 namespace BackEnd {
@@ -40,15 +41,27 @@ namespace BackEnd {
             );
 
             services.AddAuthentication("Bearer")
-                .AddJwtBearer("Bearer", options => {
+                .AddJwtBearer("Bearer", options =>
+                {
                     options.Authority = "http://localhost:5000";
                     options.RequireHttpsMetadata = false;
 
                     options.Audience = "backend";
                 });
 
+            //services.AddAuthentication("Bearer")
+            //    .AddIdentityServerAuthentication(options =>
+            //    {
+            //        options.Authority = "http://localhost:5000";
+            //        options.RequireHttpsMetadata = false;
+            //        options.ApiName = "backend";
+            //    });
+         //   services.AddSingleton<IAuthorizationHandler, MyHandler1>();
+           
+
             services.AddAuthorization(options => {
                 options.AddPolicy("ProductOwner", policy => policy.Requirements.Add(new ProductOwnerAuthorizationRequirement()));
+                options.AddPolicy("Customer", policy => policy.RequireClaim(JwtClaimTypes.Role, "customer"));
             });
 
             services.AddSingleton<IAuthorizationHandler, ProductOwnerAuthorizationHandler>();

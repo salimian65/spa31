@@ -5,6 +5,7 @@
 using IdentityModel;
 using IdentityServer4.Models;
 using System.Collections.Generic;
+using IdentityServer4;
 
 namespace IdentityProvider
 {
@@ -16,6 +17,12 @@ namespace IdentityProvider
             {
                 new IdentityResources.OpenId(),
                 new IdentityResources.Profile(),
+                //new IdentityResource
+                //{
+                //    Name = "roles",
+                //    DisplayName = "Roles",
+                //    UserClaims = { JwtClaimTypes.Role }
+                //}
             };
         }
 
@@ -23,9 +30,38 @@ namespace IdentityProvider
         {
             return new ApiResource[]
             {
-                new ApiResource("backend", "MarketPlace REST API"){ UserClaims = { JwtClaimTypes.Name } }
+              //  new ApiResource(IdentityServerConstants.LocalApi.ScopeName, "Local Api", new [] { JwtClaimTypes.Role }),
+                new ApiResource("backend", "MarketPlace REST API", new [] { JwtClaimTypes.Role,JwtClaimTypes.Name}),
             };
         }
+
+        //public static IEnumerable<Scope> ssss()
+        //{
+        //    return new List<Scope>
+        //    {
+        //    IdentityServerConstants.StandardScopes.OpenId,
+        //    IdentityServerConstants.StandardScopes.Profile,
+
+        //    new Scope
+        //    {
+        //        Name = "api1",
+        //        Description = "My API"
+        //    },
+        //    new Scope
+        //    {
+        //        Enabled = true,
+        //        Name  = "role",
+        //        DisplayName = "Role(s)",
+        //        Description = "roles of user",
+        //        Type = ScopeType.Identity,
+        //        Claims = new List<ScopeClaim>
+        //        {
+        //            new ScopeClaim("role",false)
+        //        }
+        //    },
+        //    StandardScopes.AllClaims
+        //    };
+        //}
 
         public static IEnumerable<Client> GetClients()
         {
@@ -42,18 +78,32 @@ namespace IdentityProvider
                     RequirePkce = true,
                     RequireClientSecret = false,
 
+                    AllowOfflineAccess = true,
+                    AccessTokenLifetime = 90, // 1.5 minutes
+                    AbsoluteRefreshTokenLifetime = 0,
+                    RefreshTokenUsage = TokenUsage.OneTimeOnly,
+                    RefreshTokenExpiration = TokenExpiration.Sliding,
+                    UpdateAccessTokenClaimsOnRefresh = true,
+                    RequireConsent = false,
+                    ClientClaimsPrefix = string.Empty,
+                 
                     RedirectUris =
                     {
-                        "http://localhost:8080",
                         "http://localhost:8080/callback",
-                        "http://localhost:8080/silent",
-                        "http://localhost:8080/popup",
+                        "http://localhost:8080/static/silent-renew.html"
                     },
 
                     PostLogoutRedirectUris = { "http://localhost:8080" },
                     AllowedCorsOrigins = { "http://localhost:8080" },
-
-                    AllowedScopes = { "openid", "profile", "backend" }
+                  //  AlwaysIncludeUserClaimsInIdToken = true,
+                    AllowedScopes = {
+                                       IdentityServerConstants.LocalApi.ScopeName,
+                                       IdentityServerConstants.StandardScopes.OpenId,
+                                       IdentityServerConstants.StandardScopes.Profile,
+                                       IdentityServerConstants.StandardScopes.Email,
+                                       IdentityServerConstants.StandardScopes.Phone,
+                                     //  "roles",
+                                       "backend" }
                 }
             };
         }
